@@ -119,24 +119,17 @@ export const Template3Web: React.FC<TemplateProps> = ({ data, profileImage, lang
                         </div>
                     </section>
 
-                    {/* References */}
-                    <section>
-                        <h2 className="text-lg font-bold text-gray-800 mb-4 pb-2 border-b border-gray-300">References</h2>
-                        <div className="grid grid-cols-2 gap-6 text-xs">
-                            <div>
-                                <p className="font-bold text-gray-900">Estelle Darcy</p>
-                                <p className="text-gray-600">Wardiere Inc. / CEO</p>
-                                <p className="text-gray-500">Phone: 123-456-7890</p>
-                                <p className="text-gray-500">Email: hello@reallygreatsite.com</p>
-                            </div>
-                            <div>
-                                <p className="font-bold text-gray-900">Harper Russo</p>
-                                <p className="text-gray-600">Wardiere Inc. / CEO</p>
-                                <p className="text-gray-500">Phone: 123-456-7890</p>
-                                <p className="text-gray-500">Email: hello@reallygreatsite.com</p>
-                            </div>
-                        </div>
-                    </section>
+                    {/* Certifications */}
+                    {data.certifications && data.certifications.filter(c => c.visible).length > 0 && (
+                        <section>
+                            <h2 className="text-lg font-bold text-gray-800 mb-4 pb-2 border-b border-gray-300">Certifications</h2>
+                            <ul className="space-y-2 text-xs text-gray-600">
+                                {data.certifications.filter(c => c.visible).map((cert, i) => (
+                                    <li key={i}>• {cert.name}</li>
+                                ))}
+                            </ul>
+                        </section>
+                    )}
                 </main>
             </div>
         </div>
