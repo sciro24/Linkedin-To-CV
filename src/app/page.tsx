@@ -9,6 +9,7 @@ import { SkeletonLoader } from '@/components/SkeletonLoader';
 import { templates } from '@/components/TemplateRegistry';
 import { SectionEditor } from '@/components/SectionEditor';
 import { Language, siteTranslations } from '@/utils/translations';
+import { ImageCropperModal } from '@/components/ImageCropperModal';
 
 const LANGUAGES: Language[] = ['Italiano', 'English', 'Español', 'Français', 'Deutsch'];
 
@@ -16,6 +17,10 @@ export default function Home() {
   const [file, setFile] = useState<File | null>(null);
   const [profileImage, setProfileImage] = useState<File | null>(null);
   const [profileImageUrl, setProfileImageUrl] = useState<string | undefined>(undefined);
+
+  // Cropper State
+  const [isCropperOpen, setIsCropperOpen] = useState(false);
+  const [tempImageSrc, setTempImageSrc] = useState<string | null>(null);
 
   const [resumeData, setResumeData] = useState<ResumeData | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
@@ -40,9 +45,28 @@ export default function Home() {
   };
 
   const handleImageSelect = (selectedFile: File) => {
-    setProfileImage(selectedFile);
-    const url = URL.createObjectURL(selectedFile);
+    if (selectedFile) {
+      const reader = new FileReader();
+      reader.addEventListener('load', () => {
+        setTempImageSrc(reader.result?.toString() || null);
+        setIsCropperOpen(true);
+      });
+      reader.readAsDataURL(selectedFile);
+    }
+  };
+
+  const handleCropComplete = (croppedBlob: Blob) => {
+    // Convert Blob to File
+    const croppedFile = new File([croppedBlob], "profile_photo.jpg", { type: "image/jpeg" });
+    setProfileImage(croppedFile);
+
+    // Create URL for preview
+    const url = URL.createObjectURL(croppedBlob);
     setProfileImageUrl(url);
+
+    // Close modal
+    setIsCropperOpen(false);
+    setTempImageSrc(null);
   };
 
   const handleGenerateValues = async (languageOverride?: Language, fileOverride?: File) => {
@@ -100,6 +124,15 @@ export default function Home() {
   if (!isEditorMode) {
     return (
       <div className="min-h-screen font-sans bg-[#FAFAFA] text-gray-900 relative">
+
+        {/* Cropper Modal */}
+        {isCropperOpen && tempImageSrc && (
+          <ImageCropperModal
+            imageSrc={tempImageSrc}
+            onCancel={() => { setIsCropperOpen(false); setTempImageSrc(null); }}
+            onCropComplete={handleCropComplete}
+          />
+        )}
 
         {/* Technical Grid Background */}
         <div className="absolute inset-0 z-0 pointer-events-none" style={{
@@ -313,6 +346,16 @@ export default function Home() {
   // --- EDITOR VIEW (Clean & Technical) ---
   return (
     <div className="min-h-screen bg-white flex flex-col font-sans text-gray-900 h-screen overflow-hidden">
+
+      {/* Cropper Modal for Editor View */}
+      {isCropperOpen && tempImageSrc && (
+        <ImageCropperModal
+          imageSrc={tempImageSrc}
+          onCancel={() => { setIsCropperOpen(false); setTempImageSrc(null); }}
+          onCropComplete={handleCropComplete}
+        />
+      )}
+
       {/* Editor Header */}
       <header className="bg-white border-b border-gray-200 py-0 px-6 flex justify-between items-center z-30 shadow-none flex-shrink-0 h-14">
         <div className="flex items-center gap-4 cursor-pointer" onClick={reset}>
