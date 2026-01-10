@@ -132,7 +132,7 @@ export const Template3Web: React.FC<TemplateProps> = ({ data, profileImage, lang
                             {skills.filter(s => s.visible).map((skill, index) => (
                                 <span
                                     key={index}
-                                    className="bg-white border border-slate-300 text-slate-700 px-3 py-1 flex-grow text-center text-xs font-medium rounded-sm shadow-sm"
+                                    className="text-slate-600 px-2 py-0.5 text-xs font-medium border-b border-slate-200"
                                 >
                                     {skill.name}
                                 </span>

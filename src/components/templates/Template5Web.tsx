@@ -78,10 +78,10 @@ export const Template5Web: React.FC<TemplateProps> = ({ data, profileImage, lang
                                 {skills.filter(s => s.visible).map((skill, index) => (
                                     <span
                                         key={index}
-                                        className="bg-white px-3 py-1 text-sm font-semibold rounded shadow-sm border"
-                                        style={{ color: primaryColor, borderColor: `${primaryColor}40` }}
+                                        className="text-sm font-semibold"
+                                        style={{ color: primaryColor }}
                                     >
-                                        {skill.name}
+                                        {skill.name}{index < skills.filter(s => s.visible).length - 1 ? ' • ' : ''}
                                     </span>
                                 ))}
                             </div>

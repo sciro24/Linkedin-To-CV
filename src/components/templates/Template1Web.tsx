@@ -73,7 +73,7 @@ export const Template1Web: React.FC<TemplateProps> = ({ data, profileImage, lang
                                 {skills.filter(s => s.visible).map((skill, index) => (
                                     <span
                                         key={index}
-                                        className="bg-white/10 text-white px-2 py-1 rounded text-xs"
+                                        className="text-white/90 text-xs font-medium border-b border-white/20 pb-0.5"
                                     >
                                         {skill.name}
                                     </span>
