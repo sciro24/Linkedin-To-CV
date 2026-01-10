@@ -18,9 +18,10 @@ interface ResumeRendererProps {
     templateId: string;
     profileImage?: string;
     language: Language;
+    customColor?: string;
 }
 
-export default function ResumeRenderer({ data, templateId, profileImage, language }: ResumeRendererProps) {
+export default function ResumeRenderer({ data, templateId, profileImage, language, customColor }: ResumeRendererProps) {
     const template = getTemplate(templateId);
     const t = dictionary[language] || dictionary['Italiano'];
 
@@ -31,6 +32,8 @@ export default function ResumeRenderer({ data, templateId, profileImage, languag
             </div>
         );
     }
+
+    const primaryColor = customColor || template.defaultPrimaryColor;
 
     const WebComponent = template.Web;
     const PdfDocument = template.Pdf;
@@ -43,7 +46,7 @@ export default function ResumeRenderer({ data, templateId, profileImage, languag
                     <span className="ml-2 font-bold text-gray-800">{template.name}</span>
                 </div>
                 <PDFDownloadLink
-                    document={<PdfDocument data={data} profileImage={profileImage} language={language} />}
+                    document={<PdfDocument data={data} profileImage={profileImage} language={language} primaryColor={primaryColor} />}
                     fileName={`${data.personal_info.fullName.replace(/\s+/g, '_')}_CV.pdf`}
                     className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition shadow-sm font-medium text-sm"
                 >
@@ -60,7 +63,7 @@ export default function ResumeRenderer({ data, templateId, profileImage, languag
             <div className="flex-1 overflow-auto p-8 flex justify-center items-start">
                 {/* Responsive scaling container */}
                 <div className="origin-top transform scale-[0.5] sm:scale-[0.6] md:scale-[0.75] lg:scale-[0.85] xl:scale-100 transition-transform bg-white shadow-2xl">
-                    <WebComponent data={data} profileImage={profileImage} language={language} />
+                    <WebComponent data={data} profileImage={profileImage} language={language} primaryColor={primaryColor} />
                 </div>
             </div>
         </div>

@@ -1,186 +1,255 @@
 import React from 'react';
-import { Document, Page, Text, View, StyleSheet, Image } from '@react-pdf/renderer';
-import { ResumeData } from '@/types/resume';
-import { Language, dictionary } from '@/utils/translations';
+import { Page, Text, View, Document, StyleSheet, Image, Font } from '@react-pdf/renderer';
+import { ResumeData } from '../../types/resume';
+import { Language } from '../../utils/translations';
 
-const styles = StyleSheet.create({
-    page: { flexDirection: 'row', backgroundColor: '#FFFFFF', fontFamily: 'Helvetica', fontSize: 9 },
-    sidebar: { width: '35%', backgroundColor: '#F3F4F6', paddingTop: 230, paddingHorizontal: 20 },
-    main: { flex: 1, backgroundColor: '#FFFFFF' },
-
-    // Header Block inside Main
-    headerBlock: { height: 150, backgroundColor: '#1F2937', paddingHorizontal: 30, justifyContent: 'center' },
-    name: { fontSize: 28, fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: 2, color: '#FFFFFF', marginBottom: 4 },
-    jobTitle: { fontSize: 10, color: '#D1D5DB', textTransform: 'uppercase', letterSpacing: 1 },
-
-    // Content
-    content: { padding: 30, paddingTop: 80 },
-
-    // Profile Image
-    profileImage: { position: 'absolute', top: 90, left: 30, width: 120, height: 120, borderRadius: 60, borderWidth: 6, borderColor: '#FFFFFF' },
-
-    // Sidebar styles
-    sidebarTitle: { fontSize: 10, fontWeight: 'bold', textTransform: 'uppercase', marginBottom: 8, borderBottomWidth: 1, borderBottomColor: '#D1D5DB', paddingBottom: 2, color: '#1F2937', width: 30 },
-    sidebarItem: { marginBottom: 20 },
-
-    // Progress Bar
-    skillContainer: { marginBottom: 6 },
-    skillName: { fontSize: 8, fontWeight: 'bold', color: '#374151', marginBottom: 2 },
-    progressBg: { width: '100%', height: 3, backgroundColor: '#D1D5DB', borderRadius: 1.5 },
-    progressFill: { height: '100%', backgroundColor: '#1F2937', borderRadius: 1.5 },
-
-    // Lang with dot
-    langItem: { flexDirection: 'row', alignItems: 'center', marginBottom: 4 },
-    langDot: { width: 4, height: 4, backgroundColor: '#1F2937', borderRadius: 2, marginRight: 6 },
-
-    // Main Styles
-    sectionTitle: { fontSize: 14, fontWeight: 'bold', textTransform: 'uppercase', marginBottom: 15, letterSpacing: 1, color: '#1F2937', borderBottomWidth: 1, borderBottomColor: '#E5E7EB', paddingBottom: 4 },
-
-    contactGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 10, marginBottom: 25 },
-    contactItem: { width: '45%', marginBottom: 8 },
-    contactLabel: { fontSize: 7, textTransform: 'uppercase', color: '#6B7280', marginBottom: 1 },
-    contactValue: { fontSize: 8, fontWeight: 'bold', color: '#1F2937' },
-
-    expItem: { marginBottom: 15, paddingLeft: 12, borderLeftWidth: 1, borderLeftColor: '#E5E7EB', position: 'relative' },
-    expDot: { position: 'absolute', left: -3.5, top: 0, width: 6, height: 6, backgroundColor: '#1F2937', borderRadius: 3, border: '1px solid white' },
-    expHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 2 },
-    expTitle: { fontSize: 10, fontWeight: 'bold', textTransform: 'uppercase', color: '#111827' },
-    expDate: { fontSize: 7, color: '#4B5563', backgroundColor: '#F3F4F6', paddingHorizontal: 4, paddingVertical: 1, borderRadius: 2 },
-    expCompany: { fontSize: 8, color: '#4B5563', fontWeight: 'bold', marginBottom: 2 },
-    expDesc: { fontSize: 8, color: '#4B5563', lineHeight: 1.4 },
-
-    certBox: { backgroundColor: '#F9FAFB', padding: 6, borderRadius: 2, border: '1px solid #E5E7EB', marginBottom: 4 },
+// Register fonts
+Font.register({
+    family: 'Montserrat',
+    fonts: [
+        { src: 'https://cdn.jsdelivr.net/npm/@openfonts/montserrat_latin@1.44.2/files/montserrat-latin-300.ttf', fontWeight: 300 },
+        { src: 'https://cdn.jsdelivr.net/npm/@openfonts/montserrat_latin@1.44.2/files/montserrat-latin-400.ttf' },
+        { src: 'https://cdn.jsdelivr.net/npm/@openfonts/montserrat_latin@1.44.2/files/montserrat-latin-600.ttf', fontWeight: 600 },
+        { src: 'https://cdn.jsdelivr.net/npm/@openfonts/montserrat_latin@1.44.2/files/montserrat-latin-700.ttf', fontWeight: 700 }, // Bold
+    ],
 });
 
 interface TemplateProps {
     data: ResumeData;
     profileImage?: string;
     language: Language;
+    primaryColor?: string;
 }
 
-export const Template4Pdf: React.FC<TemplateProps> = ({ data, profileImage, language }) => {
-    const t = dictionary[language];
+export const Template4Pdf: React.FC<TemplateProps> = ({ data, profileImage, language, primaryColor = '#000000' }) => {
+    const { personal_info, work_experience, education, skills, languages } = data;
+
+    const styles = StyleSheet.create({
+        page: {
+            padding: 40,
+            backgroundColor: '#FFFFFF',
+            fontFamily: 'Montserrat',
+            color: '#000000',
+        },
+        header: {
+            marginBottom: 40,
+            borderBottomWidth: 1,
+            borderBottomColor: primaryColor,
+            paddingBottom: 20,
+            flexDirection: 'row',
+            justifyContent: 'space-between',
+            alignItems: 'flex-start',
+        },
+        headerLeft: {
+            flex: 1,
+        },
+        fullName: {
+            fontSize: 30,
+            fontWeight: 300,
+            textTransform: 'uppercase',
+            letterSpacing: 4,
+            marginBottom: 10,
+            color: primaryColor,
+        },
+        contactInfo: {
+            fontSize: 9,
+            fontFamily: 'Montserrat',
+            color: '#6B7280', // Gray 500
+            flexDirection: 'row',
+            flexWrap: 'wrap',
+            gap: 15,
+        },
+        profileImage: {
+            width: 80,
+            height: 80,
+            marginLeft: 20,
+            filter: 'grayscale(100%)',
+        },
+        content: {
+            flexDirection: 'row',
+            gap: 40,
+        },
+        leftColumn: {
+            width: '65%',
+        },
+        rightColumn: {
+            width: '35%',
+        },
+        section: {
+            marginBottom: 30,
+        },
+        sectionTitle: {
+            fontSize: 10,
+            fontWeight: 700,
+            textTransform: 'uppercase',
+            letterSpacing: 2,
+            marginBottom: 15,
+            color: primaryColor,
+        },
+        summary: {
+            fontSize: 9,
+            lineHeight: 1.6,
+            color: '#374151',
+            textAlign: 'justify',
+        },
+        experienceItem: {
+            marginBottom: 20,
+            paddingLeft: 10,
+            borderLeftWidth: 1,
+            borderLeftColor: '#E5E7EB',
+        },
+        expPosition: {
+            fontSize: 11,
+            fontWeight: 700,
+            color: primaryColor,
+            marginBottom: 2,
+        },
+        expMeta: {
+            flexDirection: 'row',
+            justifyContent: 'space-between',
+            marginBottom: 5,
+        },
+        expCompany: {
+            fontSize: 9,
+            fontWeight: 600,
+            color: '#374151',
+        },
+        expDate: {
+            fontSize: 8,
+            color: '#6B7280', // Gray 500
+        },
+        description: {
+            fontSize: 9,
+            lineHeight: 1.5,
+            color: '#4B5563', // Gray 600
+        },
+        eduItem: {
+            marginBottom: 15,
+        },
+        eduDate: {
+            fontSize: 8,
+            color: '#6B7280',
+            marginBottom: 2,
+        },
+        eduSchool: {
+            fontSize: 10,
+            fontWeight: 700,
+            color: primaryColor,
+        },
+        eduDegree: {
+            fontSize: 9,
+            color: '#374151',
+        },
+        skillItem: {
+            fontSize: 9,
+            color: '#374151',
+            borderBottomWidth: 0.5,
+            borderBottomColor: '#F3F4F6',
+            paddingBottom: 4,
+            marginBottom: 6,
+        },
+        langBadge: {
+            backgroundColor: primaryColor,
+            color: '#FFFFFF',
+            fontSize: 8,
+            padding: '4 8',
+            borderRadius: 10,
+            alignSelf: 'flex-start',
+            marginBottom: 5,
+        },
+        bulletPoint: {
+            flexDirection: 'row',
+            marginBottom: 2,
+        },
+        bullet: {
+            width: 3,
+            height: 3,
+            backgroundColor: '#4B5563',
+            borderRadius: 1.5,
+            marginRight: 5,
+            marginTop: 4,
+        },
+    });
 
     return (
         <Document>
             <Page size="A4" style={styles.page}>
-                <View style={styles.sidebar}>
-                    {data.personal_info.summary && (
-                        <View style={styles.sidebarItem}>
-                            <Text style={styles.sidebarTitle}>Profile</Text>
-                            <Text style={{ fontSize: 8, color: '#4B5563', lineHeight: 1.5, textAlign: 'justify', marginTop: 4 }}>
-                                {data.personal_info.summary}
-                            </Text>
+                <View style={styles.header}>
+                    <View style={styles.headerLeft}>
+                        <Text style={styles.fullName}>{personal_info.fullName}</Text>
+                        <View style={styles.contactInfo}>
+                            {personal_info.email && <Text>{personal_info.email}</Text>}
+                            {personal_info.phone && <Text>{personal_info.phone}</Text>}
+                            {personal_info.location && <Text>{personal_info.location}</Text>}
+                            {personal_info.linkedinUrl && (
+                                <Text>LinkedIn Profile</Text>
+                            )}
                         </View>
-                    )}
-
-                    {data.education.length > 0 && (
-                        <View style={styles.sidebarItem}>
-                            <Text style={styles.sidebarTitle}>Education</Text>
-                            <View style={{ marginTop: 4 }}>
-                                {data.education.map((edu, i) => (
-                                    <View key={i} style={{ marginBottom: 8 }}>
-                                        <Text style={{ fontSize: 8, fontWeight: 'bold', textTransform: 'uppercase', color: '#1F2937' }}>{edu.degree}</Text>
-                                        <Text style={{ fontSize: 8, color: '#4B5563' }}>{edu.school}</Text>
-                                        <Text style={{ fontSize: 7, color: '#6B7280' }}>{edu.startDate} - {edu.endDate}</Text>
-                                    </View>
-                                ))}
-                            </View>
-                        </View>
-                    )}
-
-                    {data.skills.filter(s => s.visible).length > 0 && (
-                        <View style={styles.sidebarItem}>
-                            <Text style={styles.sidebarTitle}>Skills</Text>
-                            <View style={{ marginTop: 4 }}>
-                                {data.skills.filter(s => s.visible).map((skill, i) => (
-                                    <View key={i} style={styles.skillContainer}>
-                                        <Text style={styles.skillName}>{skill.name}</Text>
-                                        <View style={styles.progressBg}>
-                                            <View style={[styles.progressFill, { width: '100%' }]} />
-                                        </View>
-                                    </View>
-                                ))}
-                            </View>
-                        </View>
-                    )}
-
-                    {data.languages.length > 0 && (
-                        <View style={styles.sidebarItem}>
-                            <Text style={styles.sidebarTitle}>Language</Text>
-                            <View style={{ marginTop: 4 }}>
-                                {data.languages.map((lang, i) => (
-                                    <View key={i} style={styles.langItem}>
-                                        <View style={styles.langDot} />
-                                        <Text style={{ fontSize: 8, fontWeight: 'bold', color: '#1F2937' }}>{lang}</Text>
-                                    </View>
-                                ))}
-                            </View>
-                        </View>
+                    </View>
+                    {profileImage && (
+                        <Image src={profileImage} style={styles.profileImage} />
                     )}
                 </View>
 
-                <View style={styles.main}>
-                    <View style={styles.headerBlock}>
-                        <Text style={styles.name}>{data.personal_info.fullName}</Text>
-                        {data.work_experience[0]?.title && <Text style={styles.jobTitle}>{data.work_experience[0].title}</Text>}
-                    </View>
+                <View style={styles.content}>
+                    <View style={styles.leftColumn}>
+                        {personal_info.summary && (
+                            <View style={styles.section}>
+                                <Text style={styles.sectionTitle}>About Me</Text>
+                                <Text style={styles.summary}>{personal_info.summary}</Text>
+                            </View>
+                        )}
 
-                    {profileImage && <Image src={profileImage} style={styles.profileImage} />}
-
-                    <View style={styles.content}>
-                        <View style={styles.contactGrid}>
-                            {data.personal_info.phone && (
-                                <View style={styles.contactItem}>
-                                    <Text style={styles.contactLabel}>Phone</Text>
-                                    <Text style={styles.contactValue}>{data.personal_info.phone}</Text>
-                                </View>
-                            )}
-                            {data.personal_info.email && (
-                                <View style={styles.contactItem}>
-                                    <Text style={styles.contactLabel}>Email</Text>
-                                    <Text style={styles.contactValue}>{data.personal_info.email}</Text>
-                                </View>
-                            )}
-                            {data.personal_info.portfolioUrl && (
-                                <View style={styles.contactItem}>
-                                    <Text style={styles.contactLabel}>Website</Text>
-                                    <Text style={styles.contactValue}>{data.personal_info.portfolioUrl}</Text>
-                                </View>
-                            )}
-                            {data.personal_info.location && (
-                                <View style={styles.contactItem}>
-                                    <Text style={styles.contactLabel}>Address</Text>
-                                    <Text style={styles.contactValue}>{data.personal_info.location}</Text>
-                                </View>
-                            )}
-                        </View>
-
-                        {data.work_experience.length > 0 && (
-                            <View style={{ marginBottom: 20 }}>
+                        {work_experience && work_experience.length > 0 && (
+                            <View style={styles.section}>
                                 <Text style={styles.sectionTitle}>Experience</Text>
-                                {data.work_experience.map((exp, i) => (
-                                    <View key={i} style={styles.expItem}>
-                                        <View style={styles.expHeader}>
-                                            <Text style={styles.expTitle}>{exp.title}</Text>
-                                            <Text style={styles.expDate}>{exp.startDate} - {exp.endDate}</Text>
+                                {work_experience.map((exp, index) => (
+                                    <View key={index} style={styles.experienceItem}>
+                                        <Text style={styles.expPosition}>{exp.title}</Text>
+                                        <View style={styles.expMeta}>
+                                            <Text style={styles.expCompany}>{exp.company}</Text>
+                                            <Text style={styles.expDate}>{exp.startDate} - {exp.endDate || 'Present'}</Text>
                                         </View>
-                                        <Text style={styles.expCompany}>{exp.company} | {exp.location}</Text>
-                                        {exp.description.map((desc, idx) => (
-                                            <Text key={idx} style={styles.expDesc}>{desc}</Text>
+                                        {exp.description.map((desc, i) => (
+                                            <View key={i} style={styles.bulletPoint}>
+                                                <View style={styles.bullet} />
+                                                <Text style={styles.description}>{desc}</Text>
+                                            </View>
                                         ))}
                                     </View>
                                 ))}
                             </View>
                         )}
+                    </View>
 
-                        {data.certifications && data.certifications.filter(c => c.visible).length > 0 && (
-                            <View>
-                                <Text style={styles.sectionTitle}>Certifications</Text>
-                                {data.certifications.filter(c => c.visible).map((cert, i) => (
-                                    <View key={i} style={styles.certBox}>
-                                        <Text style={{ fontSize: 8, fontWeight: 'bold', color: '#374151' }}>{cert.name}</Text>
+                    <View style={styles.rightColumn}>
+                        {education && education.length > 0 && (
+                            <View style={styles.section}>
+                                <Text style={styles.sectionTitle}>Education</Text>
+                                {education.map((edu, index) => (
+                                    <View key={index} style={styles.eduItem}>
+                                        <Text style={styles.eduDate}>{edu.startDate} - {edu.endDate || 'Present'}</Text>
+                                        <Text style={styles.eduSchool}>{edu.school}</Text>
+                                        <Text style={styles.eduDegree}>{edu.degree}</Text>
                                     </View>
+                                ))}
+                            </View>
+                        )}
+
+                        {skills && skills.length > 0 && (
+                            <View style={styles.section}>
+                                <Text style={styles.sectionTitle}>Expertise</Text>
+                                {skills.filter(s => s.visible).map((skill, index) => (
+                                    <Text key={index} style={styles.skillItem}>{skill.name}</Text>
+                                ))}
+                            </View>
+                        )}
+
+                        {languages && languages.length > 0 && (
+                            <View style={styles.section}>
+                                <Text style={styles.sectionTitle}>Languages</Text>
+                                {languages.map((lang, index) => (
+                                    <Text key={index} style={styles.langBadge}>{lang}</Text>
                                 ))}
                             </View>
                         )}

@@ -28,6 +28,20 @@ export default function Home() {
 
   const [templateId, setTemplateId] = useState<string>('template1');
   const [selectedLanguage, setSelectedLanguage] = useState<Language>('Italiano');
+  const [customColor, setCustomColor] = useState<string | undefined>(undefined);
+  const [originalImageSrc, setOriginalImageSrc] = useState<string | null>(null);
+
+  // Predefined Palette
+  const PRESET_COLORS = [
+    '#1E293B', // Slate 800
+    '#2d3748', // Dark Gray
+    '#111827', // Gray 900
+    '#171717', // Neutral 900
+    '#000000', // Black
+    '#1e1b4b', // Indigo 950
+    '#1e3a8a', // Blue 900
+    '#0f172a', // Slate 900
+  ];
 
   // Translations wrapper
   const t = siteTranslations[selectedLanguage];
@@ -48,7 +62,9 @@ export default function Home() {
     if (selectedFile) {
       const reader = new FileReader();
       reader.addEventListener('load', () => {
-        setTempImageSrc(reader.result?.toString() || null);
+        const result = reader.result?.toString() || null;
+        setTempImageSrc(result);
+        setOriginalImageSrc(result); // Store original for re-editing
         setIsCropperOpen(true);
       });
       reader.readAsDataURL(selectedFile);
@@ -103,10 +119,10 @@ export default function Home() {
   };
 
   const reset = () => {
-    setFile(null);
     setResumeData(null);
     setError(null);
     setIsAnalyzing(false);
+    setCustomColor(undefined);
   };
 
   const Logo = () => (
@@ -459,11 +475,23 @@ export default function Home() {
                       <ImageIcon size={14} />
                     </div>
                   )}
-                  <div className="flex-1">
-                    <input id="photo-upload" type="file" className="hidden" accept="image/*" onChange={(e) => { if (e.target.files?.[0]) handleImageSelect(e.target.files[0]) }} />
+                  <div className="flex-1 flex gap-2">
                     <button onClick={() => document.getElementById('photo-upload')?.click()} className="text-[10px] border border-gray-200 px-2 py-1 rounded hover:bg-gray-50 text-gray-600 font-medium">
                       {profileImageUrl ? t.editor.changePhoto : t.editor.uploadPhoto}
                     </button>
+                    {profileImageUrl && originalImageSrc && (
+                      <button
+                        onClick={() => {
+                          setTempImageSrc(originalImageSrc);
+                          setIsCropperOpen(true);
+                        }}
+                        className="text-[10px] border border-gray-200 px-2 py-1 rounded hover:bg-gray-50 text-gray-600 font-medium flex items-center gap-1"
+                        title="Edit Crop"
+                      >
+                        <Edit3 size={10} />
+                      </button>
+                    )}
+                    <input id="photo-upload" type="file" className="hidden" accept="image/*" onChange={(e) => { if (e.target.files?.[0]) handleImageSelect(e.target.files[0]) }} />
                   </div>
                 </div>
               </div>
@@ -485,6 +513,42 @@ export default function Home() {
                     <span className="font-bold text-[10px] block leading-tight">{tmpl.name}</span>
                   </button>
                 ))}
+              </div>
+            </div>
+
+            {/* Color Selector */}
+            <div className="mb-8 border-t border-gray-100 pt-6">
+              <h3 className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-4 flex items-center gap-2">
+                Primary Color
+              </h3>
+              <div className="flex flex-wrap gap-2">
+                {PRESET_COLORS.map(color => (
+                  <button
+                    key={color}
+                    onClick={() => setCustomColor(color)}
+                    className={`w-6 h-6 rounded-full border transition-transform hover:scale-110 ${customColor === color ? 'border-gray-900 scale-110 shadow-sm' : 'border-gray-200'}`}
+                    style={{ backgroundColor: color }}
+                    title={color}
+                  />
+                ))}
+                <div className="relative group">
+                  <div className="w-6 h-6 rounded-full border border-gray-200 overflow-hidden flex items-center justify-center bg-white cursor-pointer hover:border-gray-400">
+                    <span className="text-[10px] pb-1 text-gray-400">+</span>
+                    <input
+                      type="color"
+                      className="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
+                      value={customColor || '#000000'}
+                      onChange={(e) => setCustomColor(e.target.value)}
+                    />
+                  </div>
+                </div>
+                {/* Reset Color */}
+                <button
+                  onClick={() => setCustomColor(undefined)}
+                  className="text-[10px] text-gray-400 underline ml-auto hover:text-gray-600"
+                >
+                  Default
+                </button>
               </div>
             </div>
 
@@ -536,6 +600,7 @@ export default function Home() {
                 templateId={templateId}
                 profileImage={profileImageUrl}
                 language={selectedLanguage as any}
+                customColor={customColor}
               />
             ) : (
               <div className="h-full flex items-center justify-center text-gray-300 font-mono text-xs uppercase tracking-widest">
