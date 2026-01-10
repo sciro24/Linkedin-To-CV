@@ -128,9 +128,9 @@ export const Template4Web: React.FC<TemplateProps> = ({ data, profileImage, lang
                                 Languages
                             </h2>
                             <div className="flex flex-wrap gap-2">
-                                {languages.map((lang, index) => (
+                                {languages.filter(l => l.visible).map((lang, index) => (
                                     <span key={index} className="text-sm text-white px-3 py-1 rounded-full" style={{ backgroundColor: primaryColor }}>
-                                        {lang}
+                                        {lang.name}
                                     </span>
                                 ))}
                             </div>

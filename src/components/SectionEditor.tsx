@@ -19,7 +19,7 @@ import {
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { GripVertical, Eye, EyeOff, ChevronDown, ChevronRight, Plus, Trash2 } from 'lucide-react';
-import { ResumeData, WorkExperience, Education } from '@/types/resume';
+import { ResumeData, WorkExperience, Education, Skill, Certification } from '@/types/resume';
 
 interface SectionEditorProps {
     data: ResumeData;
@@ -27,7 +27,7 @@ interface SectionEditorProps {
 }
 
 // -- Generic Sortable Item for Skills/Languages --
-const SortableItem = ({ id, content, visible, onToggle }: { id: string; content: string; visible?: boolean; onToggle?: () => void }) => {
+const SortableItem = ({ id, content, visible, onToggle, onDelete }: { id: string; content: string; visible?: boolean; onToggle?: () => void; onDelete?: () => void }) => {
     const {
         attributes,
         listeners,
@@ -48,11 +48,19 @@ const SortableItem = ({ id, content, visible, onToggle }: { id: string; content:
                 <GripVertical size={16} />
             </div>
             <div className={`flex-1 text-sm ${visible === false && 'line-through text-gray-400'}`}>{content}</div>
-            {onToggle && (
-                <button onClick={onToggle} className="text-gray-400 hover:text-blue-500 transition-colors">
-                    {visible !== false ? <Eye size={16} /> : <EyeOff size={16} />}
-                </button>
-            )}
+
+            <div className="flex items-center gap-1">
+                {onToggle && (
+                    <button onClick={onToggle} className="text-gray-400 hover:text-blue-500 p-1 transition-colors">
+                        {visible !== false ? <Eye size={16} /> : <EyeOff size={16} />}
+                    </button>
+                )}
+                {onDelete && (
+                    <button onClick={onDelete} className="text-gray-400 hover:text-red-500 p-1 transition-colors">
+                        <Trash2 size={16} />
+                    </button>
+                )}
+            </div>
         </div>
     );
 };
@@ -105,6 +113,10 @@ export const SectionEditor: React.FC<SectionEditorProps> = ({ data, onUpdate }) 
             coordinateGetter: sortableKeyboardCoordinates,
         })
     );
+
+    const [newSkillName, setNewSkillName] = useState('');
+    const [newCertName, setNewCertName] = useState('');
+    const [newLanguageName, setNewLanguageName] = useState('');
 
     // -- Personal Info --
     const updatePersonalInfo = (field: string, value: string) => {
@@ -168,7 +180,7 @@ export const SectionEditor: React.FC<SectionEditorProps> = ({ data, onUpdate }) 
         onUpdate({ ...data, education: newEdu });
     };
 
-    // -- Skills Drag --
+    // -- Skills Ops --
     const handleDragEndSkills = (event: DragEndEvent) => {
         const { active, over } = event;
         if (over && active.id !== over.id) {
@@ -183,6 +195,72 @@ export const SectionEditor: React.FC<SectionEditorProps> = ({ data, onUpdate }) 
         onUpdate({ ...data, skills: newSkills });
     };
 
+    const removeSkill = (skillName: string) => {
+        const newSkills = data.skills.filter(s => s.name !== skillName);
+        onUpdate({ ...data, skills: newSkills });
+    };
+
+    const addSkill = () => {
+        if (!newSkillName.trim()) return;
+        const newSkill: Skill = { name: newSkillName, visible: true };
+        onUpdate({ ...data, skills: [...data.skills, newSkill] });
+        setNewSkillName('');
+    }
+
+    // -- Certifications Ops --
+    const handleDragEndCerts = (event: DragEndEvent) => {
+        const { active, over } = event;
+        if (over && active.id !== over.id) {
+            const oldIndex = data.certifications.findIndex(s => s.name === active.id);
+            const newIndex = data.certifications.findIndex(s => s.name === over.id);
+            onUpdate({ ...data, certifications: arrayMove(data.certifications, oldIndex, newIndex) });
+        }
+    }
+
+    const toggleCert = (certName: string) => {
+        const newCerts = data.certifications.map(c => c.name === certName ? { ...c, visible: !c.visible } : c);
+        onUpdate({ ...data, certifications: newCerts });
+    };
+
+    const removeCert = (certName: string) => {
+        const newCerts = data.certifications.filter(c => c.name !== certName);
+        onUpdate({ ...data, certifications: newCerts });
+    };
+
+    const addCert = () => {
+        if (!newCertName.trim()) return;
+        const newCert: Certification = { name: newCertName, visible: true };
+        onUpdate({ ...data, certifications: [...data.certifications, newCert] });
+        setNewCertName('');
+    }
+
+    // -- Languages Ops --
+    const handleDragEndLanguages = (event: DragEndEvent) => {
+        const { active, over } = event;
+        if (over && active.id !== over.id) {
+            const oldIndex = data.languages.findIndex(l => l.name === active.id);
+            const newIndex = data.languages.findIndex(l => l.name === over.id);
+            onUpdate({ ...data, languages: arrayMove(data.languages, oldIndex, newIndex) });
+        }
+    };
+
+    const toggleLanguage = (langName: string) => {
+        const newLangs = data.languages.map(l => l.name === langName ? { ...l, visible: !l.visible } : l);
+        onUpdate({ ...data, languages: newLangs });
+    };
+
+    const removeLanguage = (langName: string) => {
+        const newLangs = data.languages.filter(l => l.name !== langName);
+        onUpdate({ ...data, languages: newLangs });
+    };
+
+    const addLanguage = () => {
+        if (!newLanguageName.trim()) return;
+        const newLang = { name: newLanguageName, visible: true };
+        onUpdate({ ...data, languages: [...data.languages, newLang] });
+        setNewLanguageName('');
+    }
+
 
     return (
         <div className="flex flex-col h-full bg-white">
@@ -191,7 +269,7 @@ export const SectionEditor: React.FC<SectionEditorProps> = ({ data, onUpdate }) 
                 <InputGroup label="Email" value={data.personal_info.email} onChange={(v: string) => updatePersonalInfo('email', v)} />
                 <InputGroup label="Phone" value={data.personal_info.phone} onChange={(v: string) => updatePersonalInfo('phone', v)} />
                 <InputGroup label="Location" value={data.personal_info.location} onChange={(v: string) => updatePersonalInfo('location', v)} />
-                <InputGroup label="LinkedIn" value={data.personal_info.linkedinUrl} onChange={(v: string) => updatePersonalInfo('linkedinUrl', v)} />
+                <InputGroup label="LinkedIn (Text only, no link)" value={data.personal_info.linkedinUrl} onChange={(v: string) => updatePersonalInfo('linkedinUrl', v)} />
                 <InputGroup label="Summary" value={data.personal_info.summary} onChange={(v: string) => updatePersonalInfo('summary', v)} textarea />
             </AccordionSection>
 
@@ -258,7 +336,16 @@ export const SectionEditor: React.FC<SectionEditorProps> = ({ data, onUpdate }) 
             <AccordionSection title="Skills & Languages">
                 <div className="space-y-6">
                     <div>
-                        <h4 className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Skills (Drag to reorder)</h4>
+                        <h4 className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Skills</h4>
+                        <div className="flex gap-2 mb-2">
+                            <input
+                                value={newSkillName}
+                                onChange={(e) => setNewSkillName(e.target.value)}
+                                placeholder="Add skill..."
+                                className="flex-1 p-2 text-sm border border-gray-200 rounded"
+                            />
+                            <button onClick={addSkill} className="bg-gray-900 text-white p-2 rounded hover:bg-gray-800"><Plus size={16} /></button>
+                        </div>
                         <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEndSkills}>
                             <SortableContext items={data.skills.map(s => s.name)} strategy={verticalListSortingStrategy}>
                                 {data.skills.map((skill) => (
@@ -268,32 +355,65 @@ export const SectionEditor: React.FC<SectionEditorProps> = ({ data, onUpdate }) 
                                         content={skill.name}
                                         visible={skill.visible}
                                         onToggle={() => toggleSkill(skill.name)}
+                                        onDelete={() => removeSkill(skill.name)}
                                     />
                                 ))}
                             </SortableContext>
                         </DndContext>
                     </div>
-                    <div>
+
+                    <div className="border-t border-gray-100 pt-4">
+                        <h4 className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Certifications</h4>
+                        <div className="flex gap-2 mb-2">
+                            <input
+                                value={newCertName}
+                                onChange={(e) => setNewCertName(e.target.value)}
+                                placeholder="Add certification..."
+                                className="flex-1 p-2 text-sm border border-gray-200 rounded"
+                            />
+                            <button onClick={addCert} className="bg-gray-900 text-white p-2 rounded hover:bg-gray-800"><Plus size={16} /></button>
+                        </div>
+                        <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEndCerts}>
+                            <SortableContext items={data.certifications.map(c => c.name)} strategy={verticalListSortingStrategy}>
+                                {data.certifications.map((cert) => (
+                                    <SortableItem
+                                        key={cert.name}
+                                        id={cert.name}
+                                        content={cert.name}
+                                        visible={cert.visible}
+                                        onToggle={() => toggleCert(cert.name)}
+                                        onDelete={() => removeCert(cert.name)}
+                                    />
+                                ))}
+                            </SortableContext>
+                        </DndContext>
+                    </div>
+
+                    <div className="border-t border-gray-100 pt-4">
                         <h4 className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Languages</h4>
-                        {data.languages.map((lang, i) => (
-                            <div key={i} className="mb-2">
-                                <input
-                                    value={lang}
-                                    onChange={(e) => {
-                                        const newLangs = [...data.languages];
-                                        newLangs[i] = e.target.value;
-                                        onUpdate({ ...data, languages: newLangs });
-                                    }}
-                                    className="w-full p-2 text-sm border border-gray-200 rounded bg-gray-50 focus:bg-white"
-                                />
-                            </div>
-                        ))}
-                        <button
-                            onClick={() => onUpdate({ ...data, languages: [...data.languages, 'New Language'] })}
-                            className="text-xs text-blue-600 font-bold hover:underline"
-                        >
-                            + Add Language
-                        </button>
+                        <div className="flex gap-2 mb-2">
+                            <input
+                                value={newLanguageName}
+                                onChange={(e) => setNewLanguageName(e.target.value)}
+                                placeholder="Add language..."
+                                className="flex-1 p-2 text-sm border border-gray-200 rounded"
+                            />
+                            <button onClick={addLanguage} className="bg-gray-900 text-white p-2 rounded hover:bg-gray-800"><Plus size={16} /></button>
+                        </div>
+                        <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEndLanguages}>
+                            <SortableContext items={data.languages.map(l => l.name)} strategy={verticalListSortingStrategy}>
+                                {data.languages.map((lang) => (
+                                    <SortableItem
+                                        key={lang.name}
+                                        id={lang.name}
+                                        content={lang.name}
+                                        visible={lang.visible}
+                                        onToggle={() => toggleLanguage(lang.name)}
+                                        onDelete={() => removeLanguage(lang.name)}
+                                    />
+                                ))}
+                            </SortableContext>
+                        </DndContext>
                     </div>
                 </div>
             </AccordionSection>

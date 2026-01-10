@@ -60,8 +60,8 @@ export const Template5Web: React.FC<TemplateProps> = ({ data, profileImage, lang
                             {personal_info.linkedinUrl && (
                                 <div className="flex items-center gap-2">
                                     <span style={{ color: primaryColor }} className="opacity-70">🔗</span>
-                                    <span className="hover:underline cursor-default">
-                                        Profile
+                                    <span className="font-medium">
+                                        LinkedIn Profile
                                     </span>
                                 </div>
                             )}
@@ -115,9 +115,9 @@ export const Template5Web: React.FC<TemplateProps> = ({ data, profileImage, lang
                                 Languages
                             </h3>
                             <ul className="space-y-2">
-                                {languages.map((lang, index) => (
+                                {languages.filter(l => l.visible).map((lang, index) => (
                                     <li key={index} className="text-sm font-medium text-gray-700 flex justify-between border-b border-gray-200 pb-1">
-                                        {lang}
+                                        {lang.name}
                                     </li>
                                 ))}
                             </ul>

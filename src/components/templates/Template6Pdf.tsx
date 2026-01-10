@@ -193,7 +193,7 @@ export const Template6Pdf: React.FC<TemplateProps> = ({ data, profileImage, lang
                     <View style={styles.section}>
                         <Text style={styles.sectionTitle}>Languages</Text>
                         <Text>
-                            {languages.join(' • ')}
+                            {languages.filter(l => l.visible).map(l => l.name).join(' • ')}
                         </Text>
                     </View>
                 )}

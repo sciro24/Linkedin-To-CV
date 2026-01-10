@@ -138,10 +138,10 @@ export const Template8Web: React.FC<TemplateProps> = ({ data, profileImage, lang
                                     Languages
                                 </h2>
                                 <div className="flex flex-col gap-2">
-                                    {languages.map((lang, index) => (
+                                    {languages.filter(l => l.visible).map((lang, index) => (
                                         <div key={index} className="text-sm font-medium text-slate-700 flex items-center gap-2">
                                             <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: primaryColor }}></span>
-                                            {lang}
+                                            {lang.name}
                                         </div>
                                     ))}
                                 </div>

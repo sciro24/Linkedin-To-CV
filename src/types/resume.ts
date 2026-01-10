@@ -42,6 +42,11 @@ export interface ResumeData {
   work_experience: WorkExperience[];
   education: Education[];
   skills: Skill[];
-  languages: string[];
+  languages: LanguageItem[];
   certifications: Certification[];
+}
+
+export interface LanguageItem {
+  name: string;
+  visible: boolean;
 }

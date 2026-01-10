@@ -57,7 +57,7 @@ export const Template1Web: React.FC<TemplateProps> = ({ data, profileImage, lang
                                         <span className="text-xs opacity-70">LinkedIn Profile</span>
                                     </div>
                                     <span className="block break-all text-xs opacity-90">
-                                        {personal_info.linkedinUrl.replace(/^https?:\/\//, '')}
+                                        LinkedIn Profile
                                     </span>
                                 </div>
                             )}
@@ -88,8 +88,8 @@ export const Template1Web: React.FC<TemplateProps> = ({ data, profileImage, lang
                                 Languages
                             </h3>
                             <ul className="space-y-1 text-white/90">
-                                {languages.map((lang, index) => (
-                                    <li key={index}>• {lang}</li>
+                                {languages.filter(l => l.visible).map((lang, index) => (
+                                    <li key={index}>• {lang.name}</li>
                                 ))}
                             </ul>
                         </section>

@@ -96,8 +96,8 @@ export const Template3Web: React.FC<TemplateProps> = ({ data, profileImage, lang
                         {personal_info.linkedinUrl && (
                             <div>
                                 <span className="block font-bold text-slate-800 text-xs mb-1">LinkedIn</span>
-                                <span className="text-blue-600">
-                                    Profile URL
+                                <span className="text-blue-600/80 text-xs">
+                                    LinkedIn Profile
                                 </span>
                             </div>
                         )}
@@ -147,9 +147,9 @@ export const Template3Web: React.FC<TemplateProps> = ({ data, profileImage, lang
                             Languages
                         </h3>
                         <ul className="space-y-2">
-                            {languages.map((lang, index) => (
+                            {languages.filter(l => l.visible).map((lang, index) => (
                                 <li key={index} className="text-sm text-slate-700 font-medium">
-                                    {lang}
+                                    {lang.name}
                                 </li>
                             ))}
                         </ul>

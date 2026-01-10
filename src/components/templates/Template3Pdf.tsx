@@ -279,8 +279,8 @@ export const Template3Pdf: React.FC<TemplateProps> = ({ data, profileImage, lang
                     {languages && languages.length > 0 && (
                         <View style={styles.sidebarSection}>
                             <Text style={styles.sidebarTitle}>Languages</Text>
-                            {languages.map((lang, index) => (
-                                <Text key={index} style={styles.contactValue}>• {lang}</Text>
+                            {languages.filter(l => l.visible).map((lang, index) => (
+                                <Text key={index} style={styles.contactValue}>• {lang.name}</Text>
                             ))}
                         </View>
                     )}

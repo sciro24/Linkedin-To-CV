@@ -249,10 +249,10 @@ export const Template8Pdf: React.FC<TemplateProps> = ({ data, profileImage, lang
                         {languages && languages.length > 0 && (
                             <View>
                                 <Text style={styles.sectionLabel}>Languages</Text>
-                                {languages.map((lang, index) => (
+                                {languages.filter(l => l.visible).map((lang, index) => (
                                     <View key={index} style={styles.langRow}>
                                         <View style={styles.langDot} />
-                                        <Text style={styles.langText}>{lang}</Text>
+                                        <Text style={styles.langText}>{lang.name}</Text>
                                     </View>
                                 ))}
                             </View>

@@ -6,7 +6,9 @@ import ResumeRenderer from '@/components/ResumeRenderer';
 import { ResumeData } from '@/types/resume';
 import { FileText, Image as ImageIcon, Sparkles, Check, Download, Edit3, Linkedin, Star, Cpu, Layout, RefreshCw, FileCheck, Globe, Component, ChevronDown } from 'lucide-react';
 import { SkeletonLoader } from '@/components/SkeletonLoader';
-import { templates } from '@/components/TemplateRegistry';
+import { pdf } from '@react-pdf/renderer';
+import { getTemplate, templates } from '@/components/TemplateRegistry';
+import { saveAs } from 'file-saver';
 import { SectionEditor } from '@/components/SectionEditor';
 import { Language, siteTranslations } from '@/utils/translations';
 import { ImageCropperModal } from '@/components/ImageCropperModal';
@@ -90,6 +92,35 @@ export default function Home() {
     setTempImageSrc(null);
   };
 
+
+  // Helper to generate filename
+  const getFilename = (ext: string) => {
+    const name = resumeData ? `${resumeData.personal_info.fullName}` : 'resume';
+    return `${name.replace(/\s+/g, '_')}_CV.${ext}`;
+  };
+
+  // PDF Export Logic
+  const handlePdfExport = async () => {
+    if (!resumeData) return;
+    const tmpl = getTemplate(templateId);
+    if (!tmpl) return;
+
+    const PdfComp = tmpl.Pdf;
+    // Defaults if data missing
+    const primaryColor = customColor || tmpl.defaultPrimaryColor;
+
+    const blob = await pdf(
+      <PdfComp
+        data={resumeData}
+        profileImage={profileImageUrl}
+        language={selectedLanguage as any}
+        primaryColor={primaryColor}
+      />
+    ).toBlob();
+
+    saveAs(blob, getFilename('pdf'));
+    setIsExportMenuOpen(false);
+  };
   const handleGenerateValues = async (languageOverride?: Language, fileOverride?: File) => {
     const fileToUse = fileOverride || file;
     if (!fileToUse) return;
@@ -112,7 +143,11 @@ export default function Home() {
         throw new Error('Failed to analyze CV');
       }
 
-      const data: ResumeData = await response.json();
+      const rawData = await response.json();
+      const data: ResumeData = {
+        ...rawData,
+        languages: rawData.languages ? rawData.languages.map((l: string) => ({ name: l, visible: true })) : []
+      };
       setResumeData(data);
       if (fileOverride) setFile(fileOverride);
     } catch (err) {
@@ -547,8 +582,12 @@ export default function Home() {
               <h3 className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-4 flex items-center gap-2">
                 {t.editor.template}
               </h3>
+
               <div className="grid grid-cols-2 gap-2">
-                {templates.map((tmpl, index) => (
+                {templates.map((tmpl, index) => ( // Use templates from getTemplate call not redundant, but we need import templates too? No, getTemplate is helper. 'templates' array is export.
+                  // I replaced 'import { templates }' with 'getTemplate' but page.tsx uses 'templates.map'. 
+                  // I should invoke default_api to change import line properly to import BOTH if needed.
+                  // Actually, let's just make sure I import `templates` as well in the first chunk.
                   <button
                     key={tmpl.id}
                     onClick={() => setTemplateId(tmpl.id)}
@@ -655,6 +694,6 @@ export default function Home() {
           </div>
         </div>
       </main>
-    </div>
+    </div >
   );
 }

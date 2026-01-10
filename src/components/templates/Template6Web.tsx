@@ -112,7 +112,7 @@ export const Template6Web: React.FC<TemplateProps> = ({ data, profileImage, lang
                             Languages
                         </h2>
                         <div className="text-sm">
-                            {languages.join(' • ')}
+                            {languages.filter(l => l.visible).map(l => l.name).join(' • ')}
                         </div>
                     </section>
                 )}
